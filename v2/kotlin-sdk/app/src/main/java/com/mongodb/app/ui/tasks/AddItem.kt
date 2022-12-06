@@ -62,10 +62,10 @@ fun AddItem(
             Button(
                 colors = buttonColors(containerColor = Purple200),
                 onClick = {
-                    openDialog.value = false
                     CoroutineScope(Dispatchers.IO).launch {
                         repository.addTask(taskSummary.value)
                     }
+                    openDialog.value = false
                 }
             ) {
                 Text(stringResource(R.string.create))

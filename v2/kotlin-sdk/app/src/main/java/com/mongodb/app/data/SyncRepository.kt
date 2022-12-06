@@ -18,6 +18,7 @@ import io.realm.kotlin.notifications.InitialResults
 import io.realm.kotlin.notifications.ResultsChange
 import io.realm.kotlin.notifications.UpdatedResults
 import io.realm.kotlin.query.RealmQuery
+import io.realm.kotlin.query.Sort
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -120,6 +121,7 @@ class RealmRepository constructor(
         CoroutineScope(Dispatchers.Main).launch {
             realm.subscriptions.waitForSynchronization()
             realm.query<Item>()
+                .sort(Pair("owner_id", Sort.ASCENDING))
                 .asFlow()
                 .collect { event: ResultsChange<Item> ->
                     when (event) {
@@ -240,7 +242,7 @@ class MockRepository(
         const val MOCK_OWNER_ID_OTHER = "B"
 
         fun getMockTask(index: Int): Item = Item().apply {
-            this.summary = "Task $index"
+            this.summary = "Task jahsgdkaj kahjsd asjkdhgajdhgajskd ajksdgasjdgjasghd ajkdgasjdg $index"
 
             // Make every third task complete in preview
             this.isComplete = index % 3 == 0

@@ -16,8 +16,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mongodb.app.domain.Item
@@ -32,18 +33,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun TaskItem(repository: SyncRepository, task: Item) {
-    val context = LocalContext.current
-    val itemText: MutableState<String> = remember {
-        val text = when (repository.isTaskMine(task)) {
-            true -> context.getString(R.string.mine)
-            else -> "Someone else's - TODO" // TODO extract string to resources
-        }
-        mutableStateOf(text)
-    }
-
-//    val enabled: MutableState<Boolean> = remember {
-//        mutableStateOf(repository.isTaskMine(task))
-//    }
+    val enabled = repository.isTaskMine(task)
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -53,8 +43,7 @@ fun TaskItem(repository: SyncRepository, task: Item) {
             .height(80.dp)
     ) {
         Checkbox(
-//            enabled = enabled.value,
-            enabled = true,
+            enabled = enabled,
             checked = task.isComplete,
             onCheckedChange = {
                 CoroutineScope(Dispatchers.IO).launch {
@@ -62,25 +51,36 @@ fun TaskItem(repository: SyncRepository, task: Item) {
                 }
             }
         )
-        Column {
+        Column(
+            modifier = Modifier.fillMaxWidth(0.75F)
+        ) {
             Text(
                 text = task.summary,
                 style = MaterialTheme.typography.bodyMedium,
                 color = Blue,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Bold
             )
-            Text(
-                text = itemText.value,
-                style = MaterialTheme.typography.bodySmall
-            )
+
+            // Ownership text shown only if task is mine
+            if (enabled) {
+                Text(
+                    text = stringResource(R.string.mine),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
 
-        // Delete icon
-        Row(
-            horizontalArrangement = Arrangement.End,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            ItemContextualMenu(repository, task)
+        // Prevent user interaction if tasks is not mine
+        if (enabled) {
+            // Delete icon
+            Row(
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                ItemContextualMenu(repository, task)
+            }
         }
     }
 }

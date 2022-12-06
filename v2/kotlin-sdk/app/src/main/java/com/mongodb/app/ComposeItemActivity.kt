@@ -102,6 +102,8 @@ fun TaskListScaffold(repository: SyncRepository) {
             }
 
             if (openDialog.value) {
+                // Reset summary string or else it will show the previous one
+                taskSummary.value = ""
                 AddItem(repository, openDialog, taskSummary)
             }
         },
